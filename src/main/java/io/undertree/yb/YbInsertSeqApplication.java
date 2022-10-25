@@ -13,7 +13,7 @@ public class YbInsertSeqApplication {
         System.setProperty("ybdb.pgdbmetadata.nestedloop.disable", "true");
 
         // configure parallel connection creation at startup
-        System.setProperty("com.zaxxer.hikari.blockUntilFilled", "true");
+        System.setProperty("com.zaxxer.hikari.blockUntilFilled", "false");
 
         SpringApplication.run(YbInsertSeqApplication.class, args);
     }

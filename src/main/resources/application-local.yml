@@ -23,7 +23,7 @@ spring:
       schema: api_db_domestic
       username: yugabyte
       data-source-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
-      connectionInitSql: "explain select * from yb_notify_log, yb_notify_log_uuid limit 1;"
+      connectionInitSql: "select * from pg_sleep(15), yb_notify_log, yb_notify_log_uuid limit 1;"
       initialization-fail-timeout: 80000000
       data-source-properties:
         serverName: 127.0.0.1
@@ -31,9 +31,11 @@ spring:
         databaseName: api_db_domestic
         additionalEndpoints: 127.0.0.2,127.0.0.3
         topologyKeys: "cloud1.datacenter1.rack1"
-        socketTimeout: 10
-        connectTimeout: 10
+        socketTimeout: 0
+        connectTimeout: 0
+        #loginTimeout: 0
+        cancelSignalTimeout: 0
         prepareThreshold: 1
-        options: "-c statement_timeout=8s"
+        options: "-c statement_timeout=0s"
 
 

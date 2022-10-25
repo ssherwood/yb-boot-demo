@@ -1,6 +1,6 @@
 spring:
   profiles:
-    default: yb
+    default: local
   jpa:
     open-in-view: false
 
