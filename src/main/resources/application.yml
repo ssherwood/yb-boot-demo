@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    default: yb
+  jpa:
+    open-in-view: false
+
+logging.level:
+  java.sql: DEBUG
+  com.zaxxer.hikari: TRACE
+  com.yugabyte: DEBUG
+  org.hibernate.cfg: DEBUG
+  org.hibernate.jpa: DEBUG
+  org.hibernate.type: DEBUG
+  org.hibernate.SQL: DEBUG
+  org.hibernate.type.descriptor.sql.BasicBinder: TRACE

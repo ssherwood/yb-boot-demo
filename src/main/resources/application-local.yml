@@ -1,0 +1,39 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
+        use_sql_comments: true
+        dialect: org.hibernate.dialect.PostgreSQL10Dialect
+        order_inserts: true
+        order_updates: true
+        jdbc:
+          batch_size: 30  # https://github.com/hibernate/hibernate-reactive/issues/877 <- Fixed
+          use_scrollable_resultset: true
+          use_get_generated_keys: true
+        temp.use_jdbc_metadata_defaults: false
+        connection.handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
+        # ^ exploring why Spring is defaulting this to AND_HOLD which is known to tie up connections
+    hibernate:
+      ddl-auto: none
+  datasource:
+    hikari:
+      maximum-pool-size: 100
+      max-lifetime: 16000000
+      schema: api_db_domestic
+      username: yugabyte
+      data-source-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
+      connectionInitSql: "explain select * from yb_notify_log, yb_notify_log_uuid limit 1;"
+      initialization-fail-timeout: 80000000
+      data-source-properties:
+        serverName: 127.0.0.1
+        portNumber: 5433
+        databaseName: api_db_domestic
+        additionalEndpoints: 127.0.0.2,127.0.0.3
+        topologyKeys: "cloud1.datacenter1.rack1"
+        socketTimeout: 10
+        connectTimeout: 10
+        prepareThreshold: 1
+        options: "-c statement_timeout=8s"
+
+

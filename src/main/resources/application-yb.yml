@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 30
+      schema: api_db_domestic
+      username: yugabyte
+      password: ""
+      data-source-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
+      data-source-properties:
+        serverName: 10.10.10.99
+        portNumber: 5433
+        databaseName: api_db_domestic
+        additionalEndpoints: 172.10.10.99
+        topologyKeys: "aws.us-west-1.us-west-1a,aws.us-west-2.us-west-2a"
+        socketTimeout: 10
+        connectTimeout: 10
+        prepareThreshold: 1
