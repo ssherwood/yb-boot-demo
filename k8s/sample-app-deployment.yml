@@ -1,0 +1,79 @@
+#
+# Deploy the load balancer service to map external client request to the "sample-app"
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-app-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: sample-app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+spec:
+  selector:
+    matchLabels:
+      app: sample-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sample-app
+    spec:
+      containers:
+        - name: sample-app
+          image: ssherwood/yb-boot-demo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: yb5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 3
+          resources:
+            limits:
+              cpu: "8"
+              ephemeral-storage: "1Gi"
+              memory: "16Gi"
+            requests:
+              cpu: "8"
+              ephemeral-storage: "1Gi"
+              memory: "16Gi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: sample-app
+  namespace: default
+spec:
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 65
+          type: Utilization
+      type: Resource
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: sample-app

@@ -1,0 +1,42 @@
+spring:
+  profiles:
+    default: yb
+  jpa:
+    open-in-view: false
+
+## Added for K8s environments
+management:
+  endpoint:
+    health.probes.enabled: true
+  health.probes:
+    livenessstate.enabled: true
+    readinessstate.enabled: true
+
+#
+# see https://thorben-janssen.com/hibernate-logging-guide/
+#
+logging.level:
+#  java.sql: DEBUG
+
+  # Log Hikari Config and pool status...
+  com.zaxxer.hikari: TRACE
+  com.zaxxer.hikari.HikariConfig: DEBUG
+
+  # Log Yugabyte JDBC driver details with DEBUG
+  # TRACE provides more info of Parse/Bind steps via com.yugabyte.core.v3.QueryExecutorImpl
+  #com.yugabyte: TRACE
+
+  # Log Hibernate annotation processing details mostly...
+  org.hibernate.cfg: DEBUG
+
+  # not sure if this does anything useful...
+  #org.hibernate.jpa: DEBUG
+
+  # Log all SQL DML statements as they are executed
+  #org.hibernate.SQL: DEBUG
+
+  # Log all JDBC parameters
+  #org.hibernate.type: DEBUG
+
+  # log all SQL DML bind parameters
+  #org.hibernate.type.descriptor.sql: TRACE

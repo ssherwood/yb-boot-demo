@@ -1,0 +1,40 @@
+{
+  "num_replicas": 5,
+  "placement_blocks": [
+    {
+      "cloud": "gcp",
+      "region": "us-east1",
+      "zone": "us-east1-c",
+      "min_num_replicas": 1,
+      "leader_preference": 1
+    },
+    {
+      "cloud": "gcp",
+      "region": "us-east1",
+      "zone": "us-east1-d",
+      "min_num_replicas": 1,
+      "leader_preference": 1
+    },
+    {
+      "cloud": "gcp",
+      "region": "us-central1",
+      "zone": "us-central1-c",
+      "min_num_replicas": 1,
+      "leader_preference": 2
+    },
+    {
+      "cloud": "gcp",
+      "region": "us-central1",
+      "zone": "us-central1-f",
+      "min_num_replicas": 1,
+      "leader_preference": 2
+    },
+    {
+      "cloud": "gcp",
+      "region": "us-west1",
+      "zone": "us-west1-c",
+      "min_num_replicas": 1,
+      "leader_preference": 3
+    }
+  ]
+}
