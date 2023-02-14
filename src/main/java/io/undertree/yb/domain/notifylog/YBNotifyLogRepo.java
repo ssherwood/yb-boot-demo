@@ -1,11 +1,11 @@
 package io.undertree.yb.domain.notifylog;
 
+import jakarta.persistence.QueryHint;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 
-import javax.persistence.QueryHint;
 import java.util.Optional;
 
 public interface YBNotifyLogRepo extends JpaRepository<NotifyLog, Long> {

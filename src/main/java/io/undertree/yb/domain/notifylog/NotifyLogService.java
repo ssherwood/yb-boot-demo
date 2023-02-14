@@ -2,8 +2,8 @@ package io.undertree.yb.domain.notifylog;
 
 import io.undertree.yb.domain.DBUtilRepo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 

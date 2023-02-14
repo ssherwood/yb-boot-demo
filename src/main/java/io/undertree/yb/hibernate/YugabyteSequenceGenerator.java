@@ -3,13 +3,16 @@ package io.undertree.yb.hibernate;
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.relational.QualifiedName;
 import org.hibernate.boot.model.relational.QualifiedNameParser;
+import org.hibernate.boot.registry.selector.spi.StrategySelector;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.config.spi.ConfigurationService;
 import org.hibernate.engine.config.spi.StandardConverters;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.id.enhanced.ImplicitDatabaseObjectNamingStrategy;
 import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import org.hibernate.id.enhanced.StandardNamingStrategy;
 import org.hibernate.internal.util.StringHelper;
 import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.ServiceRegistry;
@@ -17,12 +20,101 @@ import org.hibernate.service.ServiceRegistry;
 import java.util.Properties;
 import java.util.Random;
 
+import static org.hibernate.cfg.AvailableSettings.ID_DB_STRUCTURE_NAMING_STRATEGY;
+import static org.hibernate.internal.log.IncubationLogger.INCUBATION_LOGGER;
+import static org.hibernate.internal.util.NullnessHelper.coalesceSuppliedValues;
+
 /**
  * TODO WIP on creating a custom Sequence Generator that can span multiple sequences
  */
 public class YugabyteSequenceGenerator extends SequenceStyleGenerator {
 
     public static final String SEQUENCE_MAX_BUCKETS = "sequence_max_buckets";
+
+    // TODO get this working again!!!
+
+
+    /**
+     * Determine the name of the sequence (or table if this resolves to a physical table)
+     * to use.
+     * <p/>
+     * Called during {@linkplain #configure configuration}.
+     *
+     * @param params The params supplied in the generator config (plus some standard useful extras).
+     * @param dialect The dialect in effect
+     * @param jdbcEnv The JdbcEnvironment
+     * @return The sequence name
+     */
+    @SuppressWarnings("UnusedParameters")
+    protected QualifiedName determineSequenceName(
+            Properties params,
+            Dialect dialect,
+            JdbcEnvironment jdbcEnv,
+            ServiceRegistry serviceRegistry) {
+        final Identifier catalog = jdbcEnv.getIdentifierHelper().toIdentifier(
+                ConfigurationHelper.getString( CATALOG, params )
+        );
+        final Identifier schema =  jdbcEnv.getIdentifierHelper().toIdentifier(
+                ConfigurationHelper.getString( SCHEMA, params )
+        );
+
+        final String sequenceName = ConfigurationHelper.getString(
+                SEQUENCE_PARAM,
+                params,
+                () -> ConfigurationHelper.getString( ALT_SEQUENCE_PARAM, params )
+        );
+
+        if ( StringHelper.isNotEmpty( sequenceName ) ) {
+            // we have an explicit name, use it
+            if ( sequenceName.contains( "." ) ) {
+                return QualifiedNameParser.INSTANCE.parse( sequenceName );
+            }
+            else {
+                return new QualifiedNameParser.NameParts(
+                        catalog,
+                        schema,
+                        jdbcEnv.getIdentifierHelper().toIdentifier( sequenceName )
+                );
+            }
+        }
+
+        // otherwise, determine an implicit name to use
+        return determineImplicitName( catalog, schema, params, serviceRegistry );
+    }
+
+    private QualifiedName determineImplicitName(
+            Identifier catalog,
+            Identifier schema,
+            Properties params,
+            ServiceRegistry serviceRegistry) {
+        final StrategySelector strategySelector = serviceRegistry.getService( StrategySelector.class );
+
+        final String namingStrategySetting = coalesceSuppliedValues(
+                () -> {
+                    final String localSetting = ConfigurationHelper.getString( ID_DB_STRUCTURE_NAMING_STRATEGY, params );
+                    if ( localSetting != null ) {
+                        INCUBATION_LOGGER.incubatingSetting( ID_DB_STRUCTURE_NAMING_STRATEGY );
+                    }
+                    return localSetting;
+                },
+                () -> {
+                    final ConfigurationService configurationService = serviceRegistry.getService( ConfigurationService.class );
+                    final String globalSetting = ConfigurationHelper.getString( ID_DB_STRUCTURE_NAMING_STRATEGY, configurationService.getSettings() );
+                    if ( globalSetting != null ) {
+                        INCUBATION_LOGGER.incubatingSetting( ID_DB_STRUCTURE_NAMING_STRATEGY );
+                    }
+                    return globalSetting;
+                },
+                StandardNamingStrategy.class::getName
+        );
+
+        final ImplicitDatabaseObjectNamingStrategy namingStrategy = strategySelector.resolveStrategy(
+                ImplicitDatabaseObjectNamingStrategy.class,
+                namingStrategySetting
+        );
+
+        return namingStrategy.determineSequenceName( catalog, schema, params, serviceRegistry );
+    }
 
     /**
      * Determine the name of the sequence (or table if this resolves to a physical table)
@@ -35,6 +127,7 @@ public class YugabyteSequenceGenerator extends SequenceStyleGenerator {
      * @param jdbcEnv The JdbcEnvironment
      * @return The sequence name
      */
+    /*
     @SuppressWarnings({"UnusedParameters", "WeakerAccess"})
     @Override
     protected QualifiedName determineSequenceName(
@@ -87,4 +180,6 @@ public class YugabyteSequenceGenerator extends SequenceStyleGenerator {
             );
         }
     }
+
+     */
 }

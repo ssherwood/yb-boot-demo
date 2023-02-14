@@ -147,7 +147,6 @@ create table yb_notify_log_uuid
     user_id         bigint
 ) SPLIT INTO 100 TABLETS;
 
--- TODO this probably needs a "media" table for FK
 create table yb_watch_list
 (
     id              bigserial primary key,
@@ -172,25 +171,3 @@ create table yb_subscription_log
 ) SPLIT INTO 100 TABLETS;
 
 create index on yb_subscription_log(partner_id) split into 100 tablets;
-
--- create tablespace "geo_east4a" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east4", "zone" : "us-east4-a", "min_num_replicas" : 1}]}');
--- create tablespace "geo_east4b" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east4", "zone" : "us-east4-b", "min_num_replicas" : 1}]}');
--- create tablespace "geo_central1a" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-a", "min_num_replicas" : 1}]}');
--- create tablespace "geo_central1b" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-b", "min_num_replicas" : 1}]}');
---
--- create unique index geo_email_e4a on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_east4a";
--- create unique index geo_email_e4b on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_east4b";
--- create unique index geo_email_c1a on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_central1a";
--- create unique index geo_email_c1b on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_central1b";
---
---
---
--- create tablespace "geo_east1c" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east1", "zone" : "us-east1-c", "min_num_replicas" : 3}]}');
--- create tablespace "geo_east1d" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east1", "zone" : "us-east1-d", "min_num_replicas" : 3}]}');
--- create tablespace "geo_central1c" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-c", "min_num_replicas" : 3}]}');
--- create tablespace "geo_central1f" with (replica_placement='{"num_replicas" : 3, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-f", "min_num_replicas" : 3}]}');
---
--- create unique index geo_email_e1c on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_east1c" split into 100 tablets;
--- create unique index geo_email_e1d on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_east1d" split into 100 tablets;
--- create unique index geo_email_c1c on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_central1c" split into 100 tablets;
--- create unique index geo_email_c1f on yb_user (email) include(id, created_date, updated_date, email, display_name, type, status, region, password_hash, avatar_url, full_name, phone_number, birth_date, last_active_date) tablespace "geo_central1f" split into 100 tablets;

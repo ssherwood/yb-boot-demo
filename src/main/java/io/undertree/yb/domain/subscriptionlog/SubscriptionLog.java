@@ -1,15 +1,16 @@
 package io.undertree.yb.domain.subscriptionlog;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import io.undertree.yb.domain.device.Device;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
 @Table(name = "yb_subscription_log")
+//@org.hibernate.annotations.Entity(dynamicInsert = true)
 public class SubscriptionLog {
     @Id
     private String externalSubscriptionId;
@@ -22,7 +23,9 @@ public class SubscriptionLog {
 
     private Date updatedDate;
 
-    private String registrationStatus;
+    @Enumerated(EnumType.STRING)
+    @Type(PostgreSQLEnumType.class)
+    private RegistrationStatus registrationStatus;
 
     private Date startDate;
 
@@ -87,11 +90,11 @@ public class SubscriptionLog {
         this.updatedDate = updatedDate;
     }
 
-    public String getRegistrationStatus() {
+    public RegistrationStatus getRegistrationStatus() {
         return registrationStatus;
     }
 
-    public void setRegistrationStatus(String registrationStatus) {
+    public void setRegistrationStatus(RegistrationStatus registrationStatus) {
         this.registrationStatus = registrationStatus;
     }
 

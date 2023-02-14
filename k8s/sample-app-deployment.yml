@@ -1,18 +1,8 @@
 #
-# Deploy the load balancer service to map external client request to the "sample-app"
+# TODO
+# - find a way to fully externalize the application yml into a config map.
+# - Improve liveness/readiness probes to be active sooner w/o failing out.
 #
-apiVersion: v1
-kind: Service
-metadata:
-  name: sample-app-service
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: 8080
-  selector:
-    app: sample-app
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,39 +23,57 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: sample-app-config
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: yb5
+            - name: YB_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: sample-app-db-secrets
+                  key: sample-app.db.username
+            - name: YB_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: sample-app-db-secrets
+                  key: sample-app.db.password
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 40
             periodSeconds: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 40
             periodSeconds: 3
           resources:
             limits:
-              cpu: "8"
+              cpu: "4"
               ephemeral-storage: "1Gi"
-              memory: "16Gi"
+              memory: "8Gi"
             requests:
-              cpu: "8"
+              cpu: "4"
               ephemeral-storage: "1Gi"
-              memory: "16Gi"
+              memory: "8Gi"
 ---
+#
+# Right now this autoscaler isn't all that effective since it is hard to push the CPU to the threshold with
+# this application.
+#
+# TODO
+# - find a way to use custom metrics that use the LoadBalancer that is provisioned below
+#
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: sample-app
   namespace: default
 spec:
-  minReplicas: 3
-  maxReplicas: 6
+  minReplicas: 1
+  maxReplicas: 12
   metrics:
     - resource:
         name: cpu
@@ -77,3 +85,18 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: sample-app
+---
+#
+# Deploy the load balancer service to map external client request to the "sample-app"
+#
+apiVersion: v1
+kind: Service
+metadata:
+  name: sample-app-service
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: sample-app

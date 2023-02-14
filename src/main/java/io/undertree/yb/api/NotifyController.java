@@ -3,13 +3,13 @@ package io.undertree.yb.api;
 import io.undertree.yb.domain.notifylog.NotifyLog;
 import io.undertree.yb.domain.notifylog.NotifyLogService;
 import io.undertree.yb.domain.notifylog.NotifyLogUUID;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceUnit;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.hibernate.SessionFactory;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Optional;
@@ -72,5 +72,4 @@ public class NotifyController {
         record.setUserId(RandomUtils.nextLong());
         return notifyLogService.insertNotifyLogUUID(record);
     }
-
 }

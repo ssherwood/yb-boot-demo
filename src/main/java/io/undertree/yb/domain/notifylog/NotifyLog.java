@@ -1,9 +1,7 @@
 package io.undertree.yb.domain.notifylog;
 
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.id.enhanced.SequenceStyleGenerator;
+import jakarta.persistence.*;
 
-import javax.persistence.*;
 import java.util.Date;
 
 //@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "yb_notify_log_id_gen")
@@ -14,12 +12,14 @@ import java.util.Date;
 public class NotifyLog {
 
     @Id
+//    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "yb_notify_log_id_gen")
+//    @GenericGenerator(name = "yb_notify_log_id_gen", strategy = "io.undertree.yb.hibernate.YugabyteSequenceGenerator", parameters = {
+//            @org.hibernate.annotations.Parameter(name = "sequence_name", value = "yb_notify_log_id_%02d_seq"),
+//            @org.hibernate.annotations.Parameter(name = "sequence_max_buckets", value = "3"),
+//            @org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "100")
+//    })
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "yb_notify_log_id_gen")
-    @GenericGenerator(name = "yb_notify_log_id_gen", strategy = "io.undertree.yb.hibernate.YugabyteSequenceGenerator", parameters = {
-            @org.hibernate.annotations.Parameter(name = "sequence_name", value = "yb_notify_log_id_%02d_seq"),
-            @org.hibernate.annotations.Parameter(name = "sequence_max_buckets", value = "3"),
-            @org.hibernate.annotations.Parameter(name = SequenceStyleGenerator.INCREMENT_PARAM, value = "100")
-    })
+    @SequenceGenerator(name = "yb_notify_log_id_gen", sequenceName = "yb_notify_log_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 

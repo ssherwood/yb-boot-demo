@@ -1,0 +1,140 @@
+#
+# see https://docs.locust.io/en/stable/configuration.html
+#
+# TODO:
+# - add security
+# - set up defaults better (e.g. target http://IPADDR)
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-master
+  labels:
+    name: locust-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust-master
+  template:
+    metadata:
+      labels:
+        app: locust-master
+    spec:
+      volumes:
+        - name: locust-scripts
+          configMap:
+            name: scripts-cm
+      containers:
+        - name: locust-master
+          image: locustio/locust:latest
+          env:
+            - name: LOCUST_MODE_MASTER
+              value: "true"
+            - name: LOCUST_LOGLEVEL
+              value: INFO
+          volumeMounts:
+            - mountPath: /home/locust
+              name: locust-scripts
+          ports:
+            - name: loc-master-web
+              containerPort: 8089
+              protocol: TCP
+            - name: loc-master-p1
+              containerPort: 5557
+              protocol: TCP
+            - name: loc-master-p2
+              containerPort: 5558
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master
+  labels:
+    app: locust-master
+spec:
+  ports:
+    - port: 5557
+      targetPort: loc-master-p1
+      protocol: TCP
+      name: loc-master-p1
+    - port: 5558
+      targetPort: loc-master-p2
+      protocol: TCP
+      name: loc-master-p2
+  selector:
+    app: locust-master
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: locust-master-web
+  labels:
+    app: locust-master
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8089
+      targetPort: loc-master-web
+      protocol: TCP
+      name: loc-master-web
+  selector:
+    app: locust-master
+---
+#
+# Deploy a Locust Worker pod.  Start with just a single worker as we'll rely on a horizontal load balancer to trigger
+# more workers as load increases.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker
+  labels:
+    name: locust-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: locust-worker
+  template:
+    metadata:
+      labels:
+        app: locust-worker
+    spec:
+      volumes:
+        - name: locust-scripts
+          configMap:
+            name: scripts-cm
+      containers:
+        - name: locust-worker
+          image: locustio/locust:latest
+          env:
+            - name: LOCUST_MODE_WORKER
+              value: "true"
+            - name: LOCUST_MASTER_NODE_HOST
+              value: locust-master
+            - name: LOCUST_LOGLEVEL
+              value: INFO
+          volumeMounts:
+            - mountPath: /home/locust
+              name: locust-scripts
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: locust-worker
+spec:
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+    - resource:
+        name: cpu
+        target:
+          averageUtilization: 60
+          type: Utilization
+      type: Resource
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: locust-worker

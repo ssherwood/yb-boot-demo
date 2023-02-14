@@ -20,4 +20,9 @@ public class UserController {
     public Optional<User> findByEmail(@RequestParam String email) {
         return userRepo.findByEmail(email);
     }
+
+    @PostMapping("/users")
+    public User findByEmail(@RequestBody User user) {
+        return userRepo.save(user);
+    }
 }

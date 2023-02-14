@@ -1,8 +1,67 @@
 spring:
-  profiles:
-    default: yb
   jpa:
     open-in-view: false
+    properties:
+      hibernate:
+        generate_statistics: ${HIBERNATE_GENERATE_STATISTICS:false}
+        use_sql_comments: ${HIBERNATE_USER_SQL_COMMENTS:false}
+        dialect: io.undertree.yb.hibernate.YugabyteDialect
+        order_inserts: true
+        order_updates: true
+        jdbc:
+          batch_size: ${HIBERNATE_BATCH_SIZE:30}  # https://github.com/hibernate/hibernate-reactive/issues/877 <- Fixed
+          use_scrollable_resultset: true
+          use_get_generated_keys: true
+        temp.use_jdbc_metadata_defaults: false
+        connection.handling_mode: ${HIBERNATE_CONNECTION_HANDLING_MODE:DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION}
+        # ^ exploring why Spring is defaulting this to AND_HOLD which is known to tie up connections
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_MODE:none}
+  datasource:
+    hikari:
+      username: ${YB_DB_USERNAME:yugabyte}
+      password: ${YB_DB_PASSWORD}
+      schema: ${YB_DB_SCHEMA:public}
+      maximum-pool-size: ${HIKARI_POOL_SIZE:10}
+      max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
+      data-source-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
+      transaction-isolation: ${YB_DB_ISOLATION:TRANSACTION_READ_COMMITTED}
+      connection-init-sql: "SELECT * FROM yb_device, yb_user, yb_user_attr, yb_user_issue, yb_user_profile, yb_user_profile_limit, yb_user_subscription, yb_user_subscription_option, yb_user_proxy_allow, yb_notify_log WHERE yb_device.id = 1 AND yb_user.id = 1 AND yb_user.email = 'foo@bar.com' AND yb_user_attr.id = 1 AND yb_user_issue.id = 1 AND yb_user_issue.user_id = 1 AND yb_user_profile.id = 1 AND yb_user_profile.user_id = 1 AND yb_user_profile.active = TRUE AND yb_user_profile_limit.id = 1 AND yb_user_subscription.id = 1 AND yb_user_subscription.user_id = 1 AND yb_user_subscription.active = TRUE AND yb_user_subscription.source <> 'anonymous' AND yb_user_subscription_option.id = 1 AND (yb_user_subscription_option.status = 'ACTIVE' OR yb_user_subscription_option.status = 'TRIAL') AND yb_user_proxy_allow.id = 1 ORDER BY yb_user_issue.id DESC, yb_user_subscription.id DESC, yb_user_profile.created_date ASC NULLS FIRST, yb_user_proxy_allow;"
+      # Time: 16601.326 ms (00:16.601)
+
+      # The maximum number of milliseconds that a client (that's you) will wait for a connection from the pool.
+      # If this time is exceeded without a connection becoming available, a SQLException will be thrown.
+      #connection-timeout: 2000  # (default 30000 [30s]); also maps to YB driver's "loginTimeout"
+
+      # controls whether the pool will "fail fast" if the pool cannot be seeded with an initial connection successfully.
+      # Any positive number is taken to be the number of milliseconds to attempt to acquire an initial connection;
+      # the application thread will be blocked during this period.
+      # If a connection cannot be acquired before this timeout occurs, an exception will be thrown.
+      # This timeout is applied after the connectionTimeout period
+      initialization-fail-timeout: ${HIKARI_INIT_FAIL_TIMEOUT:90000} # (default: 1 [1ms]) adds ms to connectionTimeout during initialization;
+      # ^ doesn't fail but skips filling up the rest of the pool until after the app is started... probably not desirable...
+
+      # controls the maximum amount of time that a connection will be tested for aliveness.
+      # This value must be less than the connectionTimeout. Lowest acceptable validation timeout is 250 ms. Default: 5000
+      validation-timeout: ${HIKARI_VALIDATION_TIMEOUT:60000} # (default 5000 [5s]); fails if connectionInitSql takes longer
+      # ^ make 2x (basically socketTimeout but for init phase)
+
+      data-source-properties:
+        databaseName: ${YB_DB_DATABASE:yugabyte}
+        serverName: ${YB_DB_SERVER_NAME:127.0.0.1}
+        portNumber: ${YB_DB_PORT_NUMBER:5433}
+        additionalEndpoints: ${YB_DB_ADDITIONAL_ENDPOINTS:127.0.0.2,127.0.0.3}
+        topologyKeys: ${YB_DB_TOPOLOGY_KEYS:"cloud1.datacenter1.rack1"}
+        # socketTimeout: The timeout value used for socket read operations. If reading from the server takes longer than this value, the connection is closed. This can be used as both a brute force global query timeout and a method of detecting network problems. The timeout is specified in seconds and a value of zero means that it is disabled
+        socketTimeout: ${YB_DB_SOCKET_TIMEOUT_SECONDS:8}
+        # connectTimeout: The timeout value used for socket connect operations. If connecting to the server takes longer than this value, the connection is broken. The timeout is specified in seconds and a value of zero means that it is disabled.
+        #connectTimeout: 5
+        # loginTimeout: Specify how long to wait for establishment of a database connection. The timeout is specified in seconds.
+        # NOTE: loginTimeout should be > that connectTimeout
+        #loginTimeout: 15
+        #cancelSignalTimeout: 0
+        prepareThreshold: ${YB_DB_PREPARE_THRESHOLD:1}
+        options: ${YB_DB_OPTIONS:-c statement_timeout=30s}  # needs to be longer than the init query time...
 
 ## Added for K8s environments
 management:
@@ -19,8 +78,8 @@ logging.level:
 #  java.sql: DEBUG
 
   # Log Hikari Config and pool status...
-  com.zaxxer.hikari: TRACE
-  com.zaxxer.hikari.HikariConfig: DEBUG
+  com.zaxxer.hikari: ${HIKARI_LOG_LEVEL:TRACE}
+  com.zaxxer.hikari.HikariConfig: ${HIKARI_CONFIG_LOG_LEVEL:DEBUG}
 
   # Log Yugabyte JDBC driver details with DEBUG
   # TRACE provides more info of Parse/Bind steps via com.yugabyte.core.v3.QueryExecutorImpl
@@ -33,10 +92,10 @@ logging.level:
   #org.hibernate.jpa: DEBUG
 
   # Log all SQL DML statements as they are executed
-  #org.hibernate.SQL: DEBUG
+  org.hibernate.SQL: ${HIBERNATE_DEBUG_SQL:DEBUG}
 
   # Log all JDBC parameters
-  #org.hibernate.type: DEBUG
+  #org.hibernate.type: ${HIBERNATE_DEBUG_SQL_PARAMS:DEBUG}
 
   # log all SQL DML bind parameters
-  #org.hibernate.type.descriptor.sql: TRACE
+  org.hibernate.type.descriptor.sql: ${HIBERNATE_DEBUG_SQL_PARAMS:TRACE}

@@ -1,6 +1,7 @@
 package io.undertree.yb.domain.device;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+
 import java.util.Date;
 import java.util.Objects;
 
