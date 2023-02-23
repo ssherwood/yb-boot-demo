@@ -11,6 +11,7 @@ data:
   HIKARI_MAX_LIFETIME: "1800000"
   HIKARI_INIT_FAIL_TIMEOUT: "90000"
   HIKARI_VALIDATION_TIMEOUT: "60000"
+  HIKARI_CONN_INIT_SQL: "SELECT * FROM yb_device, yb_user, yb_user_attr, yb_user_issue, yb_user_profile, yb_user_profile_limit, yb_user_subscription, yb_user_subscription_option, yb_user_proxy_allow, yb_notify_log WHERE yb_device.id = 1 AND yb_user.id = 1 AND yb_user.email = 'foo@bar.com' AND yb_user_attr.id = 1 AND yb_user_issue.id = 1 AND yb_user_issue.user_id = 1 AND yb_user_profile.id = 1 AND yb_user_profile.user_id = 1 AND yb_user_profile.active = TRUE AND yb_user_profile_limit.id = 1 AND yb_user_subscription.id = 1 AND yb_user_subscription.user_id = 1 AND yb_user_subscription.active = TRUE AND yb_user_subscription.source <> 'anonymous' AND yb_user_subscription_option.id = 1 AND (yb_user_subscription_option.status = 'ACTIVE' OR yb_user_subscription_option.status = 'TRIAL') AND yb_user_proxy_allow.id = 1 ORDER BY yb_user_issue.id DESC, yb_user_subscription.id DESC, yb_user_profile.created_date ASC NULLS FIRST, yb_user_proxy_allow"
   HIKARI_LOG_LEVEL: DEBUG
   HIKARI_CONFIG_LOG_LEVEL: DEBUG
   YB_DB_DATABASE: yugabyte
@@ -23,10 +24,12 @@ data:
   YB_DB_SOCKET_TIMEOUT_SECONDS: "8"
   YB_DB_PREPARE_THRESHOLD: "1"
   YB_DB_OPTIONS: "-c statement_timeout=30s"
+  YB_DB_LOG_LEVEL: DEBUG
   HIBERNATE_DDL_MODE: none
   HIBERNATE_BATCH_SIZE: "30"
   HIBERNATE_CONNECTION_HANDLING_MODE: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
   HIBERNATE_GENERATE_STATISTICS: "false"
   HIBERNATE_USER_SQL_COMMENTS: "false"
-  HIBERNATE_DEBUG_SQL: INFO
-  HIBERNATE_DEBUG_SQL_PARAMS: INFO
+  HIBERNATE_CONFIG_LOG_LEVEL: DEBUG
+  HIBERNATE_SQL_LOG_LEVEL: INFO
+  HIBERNATE_SQL_PARAMS_LOG_LEVEL: INFO

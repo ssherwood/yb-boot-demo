@@ -1,0 +1,17 @@
+#
+# In Autopilot current need to upgrade to 1.25.5 to enable managed prometheus...
+#
+# TODO still not able to use these metrics in the HA
+#
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: sample-app-monitor
+spec:
+  selector:
+    matchLabels:
+      app: sample-app
+  endpoints:
+    - port: 8080
+      path: /actuator/prometheus
+      interval: 30s

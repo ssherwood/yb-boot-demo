@@ -1,7 +1,8 @@
 package io.undertree.yb.api;
 
 import io.undertree.yb.domain.user.User;
-import io.undertree.yb.domain.user.UserRepo;
+import io.undertree.yb.domain.user.UserRepoCentral;
+import io.undertree.yb.domain.user.UserRepoEast;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -10,19 +11,21 @@ import java.util.Optional;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private final UserRepo userRepo;
+    private final UserRepoEast userRepoEast;
+    private final UserRepoCentral userRepoCentral;
 
-    public UserController(UserRepo userRepo) {
-        this.userRepo = userRepo;
+    public UserController(UserRepoEast userRepoEast, UserRepoCentral userRepoCentral) {
+        this.userRepoEast = userRepoEast;
+        this.userRepoCentral = userRepoCentral;
     }
 
     @GetMapping("/users")
     public Optional<User> findByEmail(@RequestParam String email) {
-        return userRepo.findByEmail(email);
+        return userRepoEast.findByEmail(email);
     }
 
     @PostMapping("/users")
     public User findByEmail(@RequestBody User user) {
-        return userRepo.save(user);
+        return userRepoEast.save(user);
     }
 }

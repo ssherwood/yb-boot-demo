@@ -11,7 +11,8 @@ public class YugabyteDialect extends PostgreSQLDialect {
 
     static final String HINT_INDICATOR = "+";
     static final String HINT_PREFIX = "/*";
-    static final String HINT_SUFFIX = "*/";
+    static final String HINT_SUFFIX = "*/ ";
+
 
     /**
      * Modify the SQL, adding hints or comments, if necessary

@@ -14,6 +14,10 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/port: "8080"
       labels:
         app: sample-app
     spec:
@@ -41,13 +45,13 @@ spec:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            initialDelaySeconds: 40
+            initialDelaySeconds: 30
             periodSeconds: 3
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
               port: 8080
-            initialDelaySeconds: 40
+            initialDelaySeconds: 30
             periodSeconds: 3
           resources:
             limits:
@@ -60,8 +64,8 @@ spec:
               memory: "8Gi"
 ---
 #
-# Right now this autoscaler isn't all that effective since it is hard to push the CPU to the threshold with
-# this application.
+# Right now this autoscaler isn't all that effective since it is hard to push the CPU
+# to the threshold with this application.
 #
 # TODO
 # - find a way to use custom metrics that use the LoadBalancer that is provisioned below

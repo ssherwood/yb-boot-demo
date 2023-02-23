@@ -26,7 +26,7 @@ spring:
       max-lifetime: ${HIKARI_MAX_LIFETIME:1800000}
       data-source-class-name: com.yugabyte.ysql.YBClusterAwareDataSource
       transaction-isolation: ${YB_DB_ISOLATION:TRANSACTION_READ_COMMITTED}
-      connection-init-sql: "SELECT * FROM yb_device, yb_user, yb_user_attr, yb_user_issue, yb_user_profile, yb_user_profile_limit, yb_user_subscription, yb_user_subscription_option, yb_user_proxy_allow, yb_notify_log WHERE yb_device.id = 1 AND yb_user.id = 1 AND yb_user.email = 'foo@bar.com' AND yb_user_attr.id = 1 AND yb_user_issue.id = 1 AND yb_user_issue.user_id = 1 AND yb_user_profile.id = 1 AND yb_user_profile.user_id = 1 AND yb_user_profile.active = TRUE AND yb_user_profile_limit.id = 1 AND yb_user_subscription.id = 1 AND yb_user_subscription.user_id = 1 AND yb_user_subscription.active = TRUE AND yb_user_subscription.source <> 'anonymous' AND yb_user_subscription_option.id = 1 AND (yb_user_subscription_option.status = 'ACTIVE' OR yb_user_subscription_option.status = 'TRIAL') AND yb_user_proxy_allow.id = 1 ORDER BY yb_user_issue.id DESC, yb_user_subscription.id DESC, yb_user_profile.created_date ASC NULLS FIRST, yb_user_proxy_allow;"
+      connection-init-sql: ${HIKARI_CONN_INIT_SQL:}
       # Time: 16601.326 ms (00:16.601)
 
       # The maximum number of milliseconds that a client (that's you) will wait for a connection from the pool.
@@ -70,32 +70,36 @@ management:
   health.probes:
     livenessstate.enabled: true
     readinessstate.enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
 
 #
 # see https://thorben-janssen.com/hibernate-logging-guide/
 #
 logging.level:
-#  java.sql: DEBUG
+  #java.sql: DEBUG
 
   # Log Hikari Config and pool status...
   com.zaxxer.hikari: ${HIKARI_LOG_LEVEL:TRACE}
   com.zaxxer.hikari.HikariConfig: ${HIKARI_CONFIG_LOG_LEVEL:DEBUG}
 
-  # Log Yugabyte JDBC driver details with DEBUG
+  # Log YugabyteDB JDBC driver connection details with DEBUG
   # TRACE provides more info of Parse/Bind steps via com.yugabyte.core.v3.QueryExecutorImpl
-  #com.yugabyte: TRACE
+  com.yugabyte: ${YB_DB_LOG_LEVEL:DEBUG}
 
   # Log Hibernate annotation processing details mostly...
-  org.hibernate.cfg: DEBUG
+  org.hibernate.cfg: ${HIBERNATE_CONFIG_LOG_LEVEL:DEBUG}
 
   # not sure if this does anything useful...
   #org.hibernate.jpa: DEBUG
 
   # Log all SQL DML statements as they are executed
-  org.hibernate.SQL: ${HIBERNATE_DEBUG_SQL:DEBUG}
+  org.hibernate.SQL: ${HIBERNATE_SQL_LOG_LEVEL:DEBUG}
 
   # Log all JDBC parameters
   #org.hibernate.type: ${HIBERNATE_DEBUG_SQL_PARAMS:DEBUG}
 
   # log all SQL DML bind parameters
-  org.hibernate.type.descriptor.sql: ${HIBERNATE_DEBUG_SQL_PARAMS:TRACE}
+  org.hibernate.type.descriptor.sql: ${HIBERNATE_SQL_PARAMS_LOG_LEVEL:TRACE}
