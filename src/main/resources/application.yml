@@ -87,7 +87,7 @@ logging.level:
 
   # Log YugabyteDB JDBC driver connection details with DEBUG
   # TRACE provides more info of Parse/Bind steps via com.yugabyte.core.v3.QueryExecutorImpl
-  com.yugabyte: ${YB_DB_LOG_LEVEL:DEBUG}
+  com.yugabyte.Driver: ${YB_DB_LOG_LEVEL:DEBUG}
 
   # Log Hibernate annotation processing details mostly...
   org.hibernate.cfg: ${HIBERNATE_CONFIG_LOG_LEVEL:DEBUG}
