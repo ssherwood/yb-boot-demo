@@ -6,11 +6,11 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "yb_device")
-public class Device {
+@Table(name = "yb_device_version")
+public class DeviceVersion {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "yb_device_id_gen")
-    @SequenceGenerator(name = "yb_device_id_gen", sequenceName = "yb_device_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "yb_device_version_id_gen")
+    @SequenceGenerator(name = "yb_device_version_id_gen", sequenceName = "yb_device_version_id_seq", allocationSize = 1)
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -24,7 +24,19 @@ public class Device {
 
     private String model;
 
+    private Long partnerId;
+
+    private String partnerToken;
+
+    private String secret;
+
     private Integer version;
+
+    private Integer buildNumber;
+
+    private String versionNotes;
+
+    private Boolean deprecated;
 
     @Override
     public int hashCode() {
@@ -39,7 +51,7 @@ public class Device {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Device other = (Device) obj;
+        DeviceVersion other = (DeviceVersion) obj;
         return Objects.equals(id, other.getId());
     }
 
@@ -91,11 +103,59 @@ public class Device {
         this.model = model;
     }
 
+    public Long getPartnerId() {
+        return partnerId;
+    }
+
+    public void setPartnerId(Long partnerId) {
+        this.partnerId = partnerId;
+    }
+
+    public String getPartnerToken() {
+        return partnerToken;
+    }
+
+    public void setPartnerToken(String partnerToken) {
+        this.partnerToken = partnerToken;
+    }
+
+    public String getSecret() {
+        return secret;
+    }
+
+    public void setSecret(String secret) {
+        this.secret = secret;
+    }
+
     public Integer getVersion() {
         return version;
     }
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getBuildNumber() {
+        return buildNumber;
+    }
+
+    public void setBuildNumber(Integer buildNumber) {
+        this.buildNumber = buildNumber;
+    }
+
+    public String getVersionNotes() {
+        return versionNotes;
+    }
+
+    public void setVersionNotes(String versionNotes) {
+        this.versionNotes = versionNotes;
+    }
+
+    public Boolean getDeprecated() {
+        return deprecated;
+    }
+
+    public void setDeprecated(Boolean deprecated) {
+        this.deprecated = deprecated;
     }
 }

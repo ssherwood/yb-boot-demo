@@ -1,16 +1,23 @@
+CREATE DATABASE nexvidplus; -- WITH OWNER?
+
+-- TODO create users
+
+\c nextvidplus
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE DATABASE nexvidplus;
-CREATE SCHEMA nexvidplus_na;
+CREATE SCHEMA IF NOT EXISTS nexvidplus_us;
 
-CREATE TYPE content_genre AS ENUM ('Action', 'Adventure', 'Animation', 'Biography', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'Film Noir', 'History', 'Horror', 'Music', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Short', 'Sport', 'Superhero', 'Thriller', 'War', 'Western');
-CREATE TYPE content_format AS ENUM ('Movie', 'TV Show', 'Documentary', 'Short Film', 'Web Series');
-CREATE TYPE content_rating AS ENUM ('G', 'PG', 'PG-13', 'R', 'NC-17', 'TV-Y', 'TV-Y7', 'TV-G', 'TV-PG', 'TV-14', 'TV-MA');
-CREATE TYPE content_type AS ENUM ('SD', 'HD', 'UHD');
-CREATE TYPE device_type AS ENUM ('Computer', 'Mobile', 'Tablet', 'Smart TV', 'Game Console');
-CREATE TYPE thumb_rating AS ENUM ('Down', 'Middle', 'Up');
+-- TODO GRANT privileges
 
-CREATE TABLE account
+CREATE TYPE nexvidplus_us.content_genre AS ENUM ('ACTION', 'ADVENTURE', 'ANIMATION', 'BIOGRAPHY', 'COMEDY', 'CRIME', 'DOCUMENTARY', 'DRAMA', 'FAMILY', 'FANTASY', 'FILM_NOIR', 'HISTORY', 'HORROR', 'MUSIC', 'MUSICAL', 'MYSTERY', 'ROMANCE', 'SCI_FI', 'SHORT', 'SPORT', 'SUPERHERO', 'THRILLER', 'WAR', 'WESTERN');
+CREATE TYPE nexvidplus_us.content_format AS ENUM ('MOVIE', 'TV_SHOW', 'DOCUMENTARY', 'SHORT_FILM', 'WEB_SERIES');
+CREATE TYPE nexvidplus_us.content_rating AS ENUM ('G', 'PG', 'PG_13', 'R', 'NC_17', 'TV_Y', 'TV_Y_7', 'TV_G', 'TV_PG', 'TV_14', 'TV_MA');
+CREATE TYPE nexvidplus_us.content_type AS ENUM ('SD', 'HD', 'UHD');
+CREATE TYPE nexvidplus_us.device_type AS ENUM ('COMPUTER', 'MOBILE', 'TABLET', 'SMART_TV', 'GAME_CONSOLE');
+CREATE TYPE nexvidplus_us.thumb_rating AS ENUM ('DOWN', 'MIDDLE', 'UP');
+
+CREATE TABLE nexvidplus_us.account
 (
     id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email         VARCHAR(255) NOT NULL UNIQUE,
@@ -19,7 +26,7 @@ CREATE TABLE account
     updated_at    TIMESTAMPTZ  NOT NULL
 );
 
-CREATE TABLE sub_account
+CREATE TABLE nexvidplus_us.sub_account
 (
     id         UUID                 DEFAULT uuid_generate_v4(),
     account_id UUID        NOT NULL REFERENCES account (id) ON DELETE CASCADE,
@@ -31,7 +38,7 @@ CREATE TABLE sub_account
     PRIMARY KEY (id, account_id)
 );
 
-CREATE TABLE content
+CREATE TABLE nexvidplus_us.content
 (
     id               UUID PRIMARY KEY      DEFAULT uuid_generate_v4(),
     genre            content_genre,
@@ -47,7 +54,7 @@ CREATE TABLE content
     updated_at       TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE login_history
+CREATE TABLE nexvidplus_us.login_history
 (
     id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     account_id       UUID         NOT NULL REFERENCES account (id),
@@ -57,7 +64,7 @@ CREATE TABLE login_history
     created_at       TIMESTAMPTZ  NOT NULL
 );
 
-CREATE TABLE watch_list
+CREATE TABLE nexvidplus_us.watch_list
 (
     id                UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     sub_account_id    UUID REFERENCES sub_account (id) ON DELETE CASCADE,
@@ -69,7 +76,7 @@ CREATE TABLE watch_list
     updated_at        TIMESTAMPTZ      DEFAULT NOW()
 );
 
-CREATE TABLE wish_list
+CREATE TABLE nexvidplus_us.wish_list
 (
     id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     sub_account_id UUID REFERENCES sub_account (id) ON DELETE CASCADE,
@@ -77,7 +84,7 @@ CREATE TABLE wish_list
     created_at     TIMESTAMPTZ NOT NULL
 );
 
-CREATE TABLE subscription
+CREATE TABLE nexvidplus_us.subscription
 (
     id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     account_id UUID        NOT NULL REFERENCES account (id) ON DELETE CASCADE,

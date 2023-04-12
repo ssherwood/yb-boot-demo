@@ -14,3 +14,8 @@ class LoadSimulator(HttpUser):
     @tag('createNotifyLog')
     def post_notify_log(self):
         self.client.post(f"/api/notify/log")
+
+    @task
+    @tag('checkDevices')
+    def do_device_check(self):
+        self.client.get(f"/api/devices/", name="/devices/")

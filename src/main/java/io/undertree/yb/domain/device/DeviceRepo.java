@@ -14,4 +14,7 @@ public interface DeviceRepo extends JpaRepository<Device, Long> {
 
     @Query("SELECT DISTINCT model FROM Device")
     List<String> findDistinctModels();
+
+    //@Query("FROM Device ORDER BY model ASC")
+    Optional<List<Device>> findAllByOrderByModelAsc();
 }

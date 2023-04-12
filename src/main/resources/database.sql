@@ -116,18 +116,68 @@ create table yb_user_proxy_allow
 
 create table yb_device
 (
+    id           bigserial primary key,
+    model        text,
+    version      int          not null default 0,
+    created_date timestamptz  not null default current_timestamp,
+    created_by   varchar(100) not null default current_user,
+    updated_date timestamptz  not null default current_timestamp,
+    updated_by   varchar(100) not null default current_user
+) SPLIT INTO 1 TABLETS;
+
+-- insert into yb_device(model, version) select 'model'||seq, 1 from generate_series(1,1500) as seq;
+
+create table yb_device_version
+(
     id            bigserial primary key,
-    created_date  timestamptz not null default current_timestamp,
-    updated_date  timestamptz not null default current_timestamp,
+    device_id     bigint,
     model         text,
-    partner_id    bigint      not null,
-    partner_token text        not null,
-    secret        text        not null,
-    version       varchar(30) not null,
-    build_number  int,
+    version       int          not null default 0,
+    build_number  int          not null default 0,
     version_notes text,
-    deprecated    boolean
-) SPLIT INTO 100 TABLETS;
+    partner_id    bigint       not null,
+    partner_token text         not null,
+    secret        text         not null,
+    deprecated    boolean      not null default false,
+    created_date  timestamptz  not null default current_timestamp,
+    created_by    varchar(100) not null default current_user,
+    updated_date  timestamptz  not null default current_timestamp,
+    updated_by    varchar(100) not null default current_user,
+    constraint yb_device_version_device_id_fkey foreign key (device_id) references yb_device (id)
+) SPLIT INTO 1 TABLETS;
+
+---  insert into yb_device_version(device_id, model, version, build_number, version_notes, partner_id, partner_token, secret, deprecated) select seq, 'model'||seq, 1, 1, 'Notes:'||seq, 1, 'token', 'secret', false from generate_series(1,1500) as seq;
+
+create table yb_device_model
+(
+    device_id bigint,
+    model     text,
+    primary key (device_id, model),
+    constraint yb_device_model_device_id_fkey foreign key (device_id) references yb_device (id)
+) SPLIT INTO 1 TABLETS;
+
+---  insert into yb_device_model(device_id, model) select seq, 'model'||seq from generate_series(1, 1500) as seq;
+
+create table yb_device_model_version
+(
+    version_id bigint,
+    model      text,
+    primary key (version_id, model),
+    constraint yb_device_model_version_id_fkey foreign key (version_id) references yb_device_version (id)
+) SPLIT INTO 1 TABLETS;
+
+---  insert into yb_device_model_version(version_id, model) select seq, 'model'||seq from generate_series(1, 1500) as seq;
+
+--- yugabyte=# create tablespace geo_gcp_uswest1_1a with (replica_placement='{"num_replicas" : 1, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-west1", "zone" : "us-west1-a", "min_num_replicas" : 1}]}');
+--- CREATE TABLESPACE
+--- yugabyte=# create tablespace geo_gcp_uscentra1_1a with (replica_placement='{"num_replicas" : 1, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-a", "min_num_replicas" : 1}]}');
+--- CREATE TABLESPACE
+--- yugabyte=# create tablespace geo_gcp_uscentra1_1b with (replica_placement='{"num_replicas" : 1, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-central1", "zone" : "us-central1-b", "min_num_replicas" : 1}]}');
+--- CREATE TABLESPACE
+--- yugabyte=# create tablespace geo_gcp_useast4_4a with (replica_placement='{"num_replicas" : 1, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east4", "zone" : "us-east4-a", "min_num_replicas" : 1}]}');
+--- CREATE TABLESPACE
+--- yugabyte=# create tablespace geo_gcp_useast4_4b with (replica_placement='{"num_replicas" : 1, "placement_blocks" : [{"cloud" : "gcp", "region" : "us-east4", "zone" : "us-east4-b", "min_num_replicas" : 1}]}');
+--- CREATE TABLESPACE
 
 create table yb_notify_log
 (

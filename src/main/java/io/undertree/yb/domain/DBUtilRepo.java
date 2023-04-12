@@ -18,4 +18,12 @@ public class DBUtilRepo {
     public void enableNestedLoop() {
         jdbcTemplate.update("SET LOCAL enable_nestloop TO on");
     }
+
+    public void disableSeqScan() {
+        jdbcTemplate.update("SET LOCAL enable_seqscan TO off");
+    }
+
+    public void enableSeqScan() {
+        jdbcTemplate.update("SET LOCAL enable_seqscan TO on");
+    }
 }
