@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.2</version>
+        <version>3.0.5</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.undertree</groupId>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.yugabyte</groupId>
             <artifactId>jdbc-yugabytedb</artifactId>
-            <version>${yugabytedb-jdbc-driver.version}</version>
+            <version>42.3.5-yb-2</version>
             <scope>runtime</scope>
         </dependency>
         <!-- Adding vanilla Postgres driver to remove Hibernate 6.x error: -->

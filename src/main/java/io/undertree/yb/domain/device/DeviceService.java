@@ -3,6 +3,9 @@ package io.undertree.yb.domain.device;
 import io.undertree.yb.domain.DBUtilRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,13 +35,16 @@ public class DeviceService {
     }
 
     private void logIt(String message, long startTime, long endTime) {
-        LOGGER.info(message + ": " + (endTime - startTime) + "ms");
+        if ((endTime - startTime) > 1000) {
+            LOGGER.info(message + ": " + (endTime - startTime) + "ms");
+        }
     }
 
+    //@Cacheable("deviceVersions")
     @Transactional(readOnly = true)
     public Optional<List<DeviceVersion>> getAll() {
-
         try {
+            dbUtilRepo.setSessionReadOnly();
             dbUtilRepo.disableNestedLoop();
             dbUtilRepo.disableSeqScan();
 
@@ -62,12 +68,19 @@ public class DeviceService {
             endTime = System.currentTimeMillis();
             logIt("4. Device Model Version Query", startTime, endTime);
 
-            return Optional.empty();
+            return deviceVersions;
         } catch (Exception ex) {
+            LOGGER.error("Unexpected exception :: " + ex, ex);
             throw ex;
         } finally {
             dbUtilRepo.enableSeqScan();
             dbUtilRepo.enableNestedLoop();
         }
+    }
+
+    //@CacheEvict(cacheNames = "deviceVersions", allEntries = true)
+    //@Scheduled(fixedDelayString = "${app.caching.deviceVersionExpiryMs}", initialDelay = 30000)
+    public void evictDeviceVersionCache() {
+        LOGGER.info("Evicting 'deviceVersions' cache...");
     }
 }

@@ -1,9 +1,6 @@
 package io.undertree.yb.api;
 
-import io.undertree.yb.domain.device.Device;
-import io.undertree.yb.domain.device.DeviceRepo;
-import io.undertree.yb.domain.device.DeviceService;
-import io.undertree.yb.domain.device.DeviceVersion;
+import io.undertree.yb.domain.device.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,10 +15,12 @@ import java.util.Optional;
 public class DeviceController {
     private final DeviceRepo deviceRepo;
     private final DeviceService deviceService;
+    private final DeviceFollowerReadService deviceFollowerReadService;
 
-    public DeviceController(DeviceRepo deviceRepo, DeviceService deviceService) {
+    public DeviceController(DeviceRepo deviceRepo, DeviceService deviceService, DeviceFollowerReadService deviceFollowerReadService) {
         this.deviceRepo = deviceRepo;
         this.deviceService = deviceService;
+        this.deviceFollowerReadService = deviceFollowerReadService;
     }
 
     @GetMapping("/models")
@@ -36,6 +35,6 @@ public class DeviceController {
 
     @GetMapping("/")
     public Collection<DeviceVersion> findAllDeviceVersions() {
-        return deviceService.getAll().orElse(Collections.emptyList());
+        return deviceFollowerReadService.getAll().orElse(Collections.emptyList());
     }
 }

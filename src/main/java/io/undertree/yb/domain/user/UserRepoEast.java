@@ -9,9 +9,9 @@ import java.util.Optional;
 import static org.hibernate.annotations.QueryHints.COMMENT;
 
 public interface UserRepoEast extends JpaRepository<User, Long> {
-    @QueryHints({
-            // using regional index to improve performance of local lookups
-            @QueryHint(name = COMMENT, value = "+IndexOnlyScan(u1_0 geo_email_east4)")
-    })
+//    @QueryHints({
+//            // using regional index to improve performance of local lookups
+//            @QueryHint(name = COMMENT, value = "+IndexOnlyScan(u1_0 geo_email_east1)")
+//    })
     Optional<User> findByEmail(String email);
 }

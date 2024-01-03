@@ -11,6 +11,18 @@ public class DBUtilRepo {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public void setSessionReadOnly() {
+        jdbcTemplate.update("SET LOCAL TRANSACTION READ ONLY");
+    }
+
+    public void enableFollowerRead() {
+        jdbcTemplate.update("SET yb_read_from_followers TO on");
+    }
+
+    public void disableFollowerRead() {
+        jdbcTemplate.update("SET yb_read_from_followers TO off");
+    }
+
     public void disableNestedLoop() {
         jdbcTemplate.update("SET LOCAL enable_nestloop TO off");
     }

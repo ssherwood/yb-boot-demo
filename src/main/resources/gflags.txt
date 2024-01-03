@@ -1,0 +1,14 @@
+FLAG,TSERVER,MASTER
+ysql_enable_read_request_caching,true,true
+ysql_num_shards_per_tserver,1,1
+ysql_yb_enable_sequence_pushdown,true,true
+yb_client_admin_operation_timeout_sec,3500,3500
+ysql_catalog_preload_additional_tables,true,true
+leader_lease_duration_ms,6000,6000
+stream_compression_algo,3,3
+db_block_cache_size_percentage,35,10
+ysql_index_backfill_rpc_timeout_ms,,7200000
+yb_enable_read_committed_isolation,true,true
+ysql_yb_enable_expression_pushdown,true,true
+leader_failure_max_missed_heartbeat_periods,5,5
+raft_heartbeat_interval_ms,1500,1500

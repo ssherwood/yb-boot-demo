@@ -50,18 +50,23 @@ spring:
         databaseName: ${YB_DB_DATABASE:yugabyte}
         serverName: ${YB_DB_SERVER_NAME:127.0.0.1}
         portNumber: ${YB_DB_PORT_NUMBER:5433}
-        additionalEndpoints: ${YB_DB_ADDITIONAL_ENDPOINTS:127.0.0.2,127.0.0.3}
-        topologyKeys: ${YB_DB_TOPOLOGY_KEYS:"cloud1.datacenter1.rack1"}
+        additionalEndpoints: ${YB_DB_ADDITIONAL_ENDPOINTS:} # 127.0.0.2,127.0.0.3
+        topologyKeys: ${YB_DB_TOPOLOGY_KEYS:gcp.us-east1.us-east1-b}
+        #explicitFallbackOnly: ${YB_DB_EXPLICIT_FALLBACK_ONLY:true}
         # socketTimeout: The timeout value used for socket read operations. If reading from the server takes longer than this value, the connection is closed. This can be used as both a brute force global query timeout and a method of detecting network problems. The timeout is specified in seconds and a value of zero means that it is disabled
         socketTimeout: ${YB_DB_SOCKET_TIMEOUT_SECONDS:8}
         # connectTimeout: The timeout value used for socket connect operations. If connecting to the server takes longer than this value, the connection is broken. The timeout is specified in seconds and a value of zero means that it is disabled.
-        #connectTimeout: 5
+        connectTimeout: ${YB_DB_CONNECT_TIMEOUT:30}
         # loginTimeout: Specify how long to wait for establishment of a database connection. The timeout is specified in seconds.
         # NOTE: loginTimeout should be > that connectTimeout
-        #loginTimeout: 15
+        loginTimeout: ${YB_DB_LOGIN_TIMEOUT:60}
         #cancelSignalTimeout: 0
         prepareThreshold: ${YB_DB_PREPARE_THRESHOLD:1}
         options: ${YB_DB_OPTIONS:-c statement_timeout=30s}  # needs to be longer than the init query time...
+
+app:
+  caching:
+    deviceVersionExpiryMs: ${APP_CACHE_DEVICE_VERSION_EXPIRY_MS:60000}
 
 ## Added for K8s environments
 management:
@@ -87,7 +92,8 @@ logging.level:
 
   # Log YugabyteDB JDBC driver connection details with DEBUG
   # TRACE provides more info of Parse/Bind steps via com.yugabyte.core.v3.QueryExecutorImpl
-  com.yugabyte.Driver: ${YB_DB_LOG_LEVEL:DEBUG}
+  com.yugabyte: ${YB_LOG_LEVEL:INFO}
+  com.yugabyte.Driver: ${YB_DB_LOG_LEVEL:TRACE}
 
   # Log Hibernate annotation processing details mostly...
   org.hibernate.cfg: ${HIBERNATE_CONFIG_LOG_LEVEL:DEBUG}
@@ -103,3 +109,5 @@ logging.level:
 
   # log all SQL DML bind parameters
   org.hibernate.type.descriptor.sql: ${HIBERNATE_SQL_PARAMS_LOG_LEVEL:TRACE}
+
+  #org.springframework.jdbc: TRACE
